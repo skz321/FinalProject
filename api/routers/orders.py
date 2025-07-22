@@ -33,3 +33,7 @@ def update(item_id: int, request: schema.OrderUpdate, db: Session = Depends(get_
 @router.delete("/{item_id}")
 def delete(item_id: int, db: Session = Depends(get_db)):
     return controller.delete(db=db, item_id=item_id)
+
+@router.get("/{item_id}/total")
+def get_order_total(order_id: int, db: Session = Depends(get_db)):
+    return controller.calculate_total_price(db, order_id)
