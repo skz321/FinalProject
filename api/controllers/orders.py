@@ -1,5 +1,7 @@
+from json import JSONDecodeError
+
 from sqlalchemy.orm import Session
-from fastapi import HTTPException, status, Response, Depends
+from fastapi import HTTPException, status, Response, Depends, Request
 from ..models import orders as model
 from ..models import order_details as model_details
 from ..models import sandwiches as model_sandwich
@@ -72,7 +74,7 @@ def delete(db: Session, item_id):
     return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
-def calculate_total_price(db: Session, item_id: int):
+def calculate_total_price(db: Session, item_id):
     try:
         # Query order details filtered by item_id
         order_details_query = db.query(model_details.OrderDetail).filter(model_details.OrderDetail.order_id == item_id)
@@ -97,3 +99,11 @@ def calculate_total_price(db: Session, item_id: int):
     except SQLAlchemyError as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e.__dict__['orig']))
 
+# basic payment logic (can be changed later)
+async def payment(db: Session, item_id, request: Request):
+    try:
+        request_body = await request.json()
+        payment_amount = request_body.get('payment_amount')
+
+    except JSONDecodeError as e:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e.__dict__['orig']))
