@@ -1,5 +1,6 @@
 from sqlalchemy import Column, Integer, String
 from ..dependencies.database import Base
+from sqlalchemy.orm import relationship
 
 class User(Base):
     __tablename__ = "users"
@@ -10,5 +11,6 @@ class User(Base):
     phone_number = Column(String(20), nullable=True)
     address = Column(String(200), nullable=True)
 
+    reviews = relationship("Review", back_populates="customer")
 
 
