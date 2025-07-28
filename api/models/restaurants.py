@@ -8,4 +8,6 @@ class Restaurant(Base):
 
     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
     name = Column(String(100))
+
     food_items = relationship("Sandwich", backref="restaurant")
+    sandwiches = relationship("Sandwich", backref="restaurant")
