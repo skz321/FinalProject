@@ -4,14 +4,14 @@ from datetime import datetime
 from ..dependencies.database import Base
 
 
-class Sandwich(Base):
-    __tablename__ = "sandwiches"
+class FoodItem(Base):
+    __tablename__ = "food_items"
 
     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
-    sandwich_name = Column(String(100), unique=True, nullable=True)
+    food_item_name = Column(String(100), unique=True, nullable=True)
     price = Column(DECIMAL(4, 2), nullable=False, server_default='0.0')
     restaurant_id = Column(ForeignKey("restaurants.id"), nullable=False)
 
-    recipes = relationship("Recipe", back_populates="sandwich")
-    order_details = relationship("OrderDetail", back_populates="sandwich")
-    restaurant = relationship("Restaurant", back_populates="sandwich")
+    recipes = relationship("Recipe", back_populates="")
+    order_details = relationship("OrderDetail", back_populates="food_items")
+    restaurant = relationship("Restaurant", back_populates="food_items")
