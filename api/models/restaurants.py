@@ -7,7 +7,9 @@ class Restaurant(Base):
     __tablename__ = "restaurants"
 
     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
-    name = Column(String(100))
+    restaurant_name = Column(String(100))
+    owner = Column(ForeignKey("users.id"))
 
-    food_items = relationship("Sandwich", backref="restaurant")
-    sandwiches = relationship("Sandwich", backref="restaurant")
+    food_items = relationship("FoodItem", backref="restaurant")
+    user = relationship("User", backref="restaurant")
+
