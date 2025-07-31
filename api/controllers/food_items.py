@@ -1,22 +1,15 @@
 from sqlalchemy.orm import Session
 from fastapi import HTTPException, status, Response
-from ..models import restaurants as restaurant_model
 from ..models import food_items as food_model
 from sqlalchemy.exc import SQLAlchemyError
 
 
 
 
-def add_food_item(db: Session, restaurant_id: int, name: str, price: float):
-    restaurant = db.query(restaurant_model.Restaurant).filter(restaurant_model.Restaurant.id == restaurant_id).first()
-    if not restaurant:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Restaurant not found")
-
-
+def add_food_item(db: Session, name: str, price: float):
     new_food_item = food_model.FoodItem(
         food_item_name=name,
         price=price,
-        restaurant_id=restaurant_id
     )
 
     try:
@@ -29,15 +22,15 @@ def add_food_item(db: Session, restaurant_id: int, name: str, price: float):
 
     return new_food_item
 
-def read_all_food_items(db: Session, restaurant_id: int):
+def read_all_food_items(db: Session, food_item_id):
     try:
-        food_items = db.query(food_model.FoodItem).filter(food_model.FoodItem.restaurant_id == restaurant_id).all()
-        if not food_items:
-            return []
+        food_item = db.query(food_model.FoodItem).filter(food_model.FoodItem.id == food_item_id).first()
+        if not food_item:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
     except SQLAlchemyError as e:
         error = str(e.__dict__['orig'])
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=error)
-    return food_items
+    return food_item
 
 
 def update_food_item(db: Session, food_item_id: int, request):
