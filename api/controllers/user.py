@@ -5,8 +5,10 @@ from ..schemas import user as schemas
 
 def create(db: Session, user: schemas.UserCreate):
     new_user = models.User(
-        username=user.username,
+        name=user.name,
         email=user.email,
+        phone_number=user.phone_number,
+        address=user.address,
         password=user.password
     )
     db.add(new_user)
