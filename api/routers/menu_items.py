@@ -34,3 +34,7 @@ def delete_item(item_id: int, db: Session = Depends(get_db)):
     if item is None:
         raise HTTPException(status_code=404, detail="Menu item not found")
     return controller.delete(db, item_id)
+
+@router.get("/category/", status_code=200)
+def get_by_category(category: str, db: Session = Depends(get_db)):
+    return controller.get_category(db=db, category=category)

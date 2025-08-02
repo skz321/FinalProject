@@ -59,3 +59,13 @@ def delete(db: Session, item_id: int):
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=error)
 
     return Response(status_code=status.HTTP_204_NO_CONTENT)
+
+def get_category(db: Session, category: str):
+    try:
+        menu_items = db.query(models.MenuItem).filter(models.MenuItem.category == category).all()
+        if not menu_items:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
+        return menu_items
+    except SQLAlchemyError as e:
+        error = str(e.__dict__['orig'])
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=error)
