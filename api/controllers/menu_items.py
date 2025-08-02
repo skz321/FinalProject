@@ -10,7 +10,6 @@ def create(db: Session, item: schemas.MenuItemCreate):
         price=item.price,
         calories=item.calories,
         category=item.category,
-        amount_in_stock = item.amount_in_stock,
     )
     try:
         db.add(new_item)

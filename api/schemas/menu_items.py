@@ -6,7 +6,7 @@ class MenuItemBase(BaseModel):
     price: float
     calories: Optional[float] = None
     category: Optional[str] = None
-    amount_in_stock: Optional[int] = None
+
 
 class MenuItemCreate(MenuItemBase):
     pass
