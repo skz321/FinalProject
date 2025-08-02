@@ -44,3 +44,7 @@ def pay(order_id: int, payment: dict = Body(...), db: Session = Depends(get_db))
 @router.put("/{order_id}/complete", status_code=200)
 def complete_order(order_id: int, db: Session = Depends(get_db)):
     return controller.mark_order_completed(db, order_id)
+
+@router.get("/status/{tracking_number}", response_model=schema.OrderStatus)
+def get_status(tracking_number: str, db: Session = Depends(get_db)):
+    return controller.get_status(db, tracking_number=tracking_number)

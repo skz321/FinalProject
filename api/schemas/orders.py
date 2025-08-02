@@ -34,3 +34,6 @@ class Order(OrderBase):
 
     class ConfigDict:
         from_attributes = True
+
+class OrderStatus(BaseModel):
+    status: str

@@ -180,3 +180,13 @@ def mark_order_completed(db: Session, order_id: int):
     return {"message": f"Order {order_id} marked as completed"}
 
 # todo: def get_status
+
+def get_status(db: Session, tracking_number: str):
+    try:
+        order = db.query(model_orders.Order).filter(model_orders.Order.tracking_number == tracking_number).first()
+        if not order:
+            raise HTTPException(status_code=404, detail="Order not found")
+        return {"status": order.status}
+    except SQLAlchemyError as e:
+        error = str(e.__dict__['orig'])
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=error)
