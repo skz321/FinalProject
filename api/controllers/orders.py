@@ -178,3 +178,5 @@ def mark_order_completed(db: Session, order_id: int):
     db.commit()
     db.refresh(order)
     return {"message": f"Order {order_id} marked as completed"}
+
+# todo: def get_status
