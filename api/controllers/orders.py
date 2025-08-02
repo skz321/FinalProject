@@ -1,8 +1,10 @@
-from json import JSONDecodeError
 from sqlalchemy.orm import Session
-from fastapi import HTTPException, status, Response, Depends, Request
+from fastapi import HTTPException, status, Response
 from ..models import orders as model_orders
 from ..models import menu_items as model_menu_item
+from . import ingredients as ingredient_controller
+from . import menu_item_ingredients as link_controller
+from ..models import ingredients as model_ingredients
 from ..schemas import orders as order_schema
 from ..schemas import order_details as order_details_schema
 from . import order_details as order_details_controller
@@ -10,6 +12,9 @@ from sqlalchemy.exc import SQLAlchemyError
 from datetime import datetime, timezone
 
 def create(db: Session, order: order_schema.OrderCreate):
+    from sqlalchemy.exc import SQLAlchemyError
+    from datetime import datetime, timezone
+
     tracking_number = "TRACK-" + datetime.now(timezone.utc).strftime("%Y%m%d%H%M%S")
     new_order = model_orders.Order(
         customer_name=order.customer_name,
@@ -20,40 +25,59 @@ def create(db: Session, order: order_schema.OrderCreate):
     )
 
     total_price = 0
+    ingredient_usage = {}
 
     try:
         db.add(new_order)
         db.flush()
+
         for detail in order.order_details:
-            menu_item = (db.query(model_menu_item.MenuItem)
-                         .filter(model_menu_item.MenuItem.id == detail.menu_item_id)
-                         .first())
+            menu_item = db.query(model_menu_item.MenuItem).filter_by(id=detail.menu_item_id).first()
             if not menu_item:
                 raise HTTPException(status_code=404, detail=f"Menu item {detail.menu_item_id} not found")
 
-            item_total = menu_item.price * detail.amount
-            total_price += item_total
+            item_links = link_controller.read_by_menu_item(db, menu_item.id)
+            for link in item_links:
+                total_required = link.required_quantity * detail.amount
+                ingredient_usage[link.ingredient_id] = ingredient_usage.get(link.ingredient_id, 0) + total_required
 
-            detail_request = order_details_schema.OrderDetailCreate(
-                menu_item_id=detail.menu_item_id,
-                amount=detail.amount
-            )
+            total_price += menu_item.price * detail.amount
+
+        # checks if there are enough ingredients
+        for ingredient_id, required_qty in ingredient_usage.items():
+            ingredient = ingredient_controller.read_one(db, ingredient_id)
+            if ingredient.quantity < required_qty:
+                raise HTTPException(
+                    status_code=400,
+                    detail=f"Not enough {ingredient.name}. Needed: {required_qty}, Available: {ingredient.quantity}"
+                )
+
+
+        for detail in order.order_details:
             order_details_controller.create(
                 db=db,
                 request=order_details_schema.OrderDetailUpdate(
                     order_id=new_order.id,
-                    menu_item_id=detail_request.menu_item_id,
-                    amount=detail_request.amount
+                    menu_item_id=detail.menu_item_id,
+                    amount=detail.amount
                 )
             )
+
+        # removes ingredients from quantity
+        for ingredient_id, used_qty in ingredient_usage.items():
+            ingredient = db.query(model_ingredients.Ingredient).filter_by(id=ingredient_id).first()
+            ingredient.quantity -= used_qty
+
         new_order.total_price = total_price
         db.commit()
         db.refresh(new_order)
+
     except SQLAlchemyError as e:
-        error = str(e.__dict__['orig'])
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=error)
+        db.rollback()
+        raise HTTPException(status_code=400, detail=str(e))
 
     return new_order
+
 
 
 def read_all(db: Session):

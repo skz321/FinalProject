@@ -1,4 +1,4 @@
-from . import orders, order_details, user, menu_items, reviews
+from . import orders, order_details, user, menu_items, reviews, ingredients, menu_item_ingredients
 
 
 from ..dependencies.database import engine
@@ -10,5 +10,7 @@ def index():
     user.Base.metadata.create_all(engine)
     menu_items.Base.metadata.create_all(engine)
     reviews.Base.metadata.create_all(engine)
+    ingredients.Base.metadata.create_all(engine)
+    menu_item_ingredients.Base.metadata.create_all(engine)
 
 
