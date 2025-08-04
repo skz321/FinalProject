@@ -8,16 +8,32 @@ from ..models import ingredients as model_ingredients
 from ..schemas import orders as order_schema
 from ..schemas import order_details as order_details_schema
 from . import order_details as order_details_controller
+from ..models import order_details as model_order_details
+from . import user as user_controller
 from sqlalchemy.exc import SQLAlchemyError
 from datetime import datetime, timezone
 
 def create(db: Session, order: order_schema.OrderCreate):
-    from sqlalchemy.exc import SQLAlchemyError
-    from datetime import datetime, timezone
 
     tracking_number = "TRACK-" + datetime.now(timezone.utc).strftime("%Y%m%d%H%M%S")
+    customer_name = order.customer_name
+    order_type = order.order_type
+    if not customer_name or customer_name == "string":
+        if order.user_id:
+            customer_name = user_controller.read_one(db, order.user_id).name
+        else:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail="Please order as a user or enter name if guest")
+    if not order_type or order_type == "string":
+        if order.user_id:
+            # customer_name = user_controller.read_one(db, order.user_id).name
+            order_type = user_controller.read_one(db, order.user_id).name # todo: implement in users
+        else:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                                detail="Please order as a user or manually enter order type if guest")
+
     new_order = model_orders.Order(
-        customer_name=order.customer_name,
+        customer_name=customer_name,
+        order_type = order_type,
         description=order.description,
         tracking_number=tracking_number,
         total_price=0.00,
@@ -25,6 +41,8 @@ def create(db: Session, order: order_schema.OrderCreate):
         card="",
 
     )
+    if order.user_id:
+        new_order.user_id = order.user_id
 
     total_price = 0
     ingredient_usage = {}
@@ -121,11 +139,11 @@ def delete(db: Session, order_id):
         order = db.query(model_orders.Order).filter(model_orders.Order.id == order_id)
         if not order.first():
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Id not found!")
-        order_details_controller.delete(db, order_id)
+        db.query(model_order_details.OrderDetail).filter(model_order_details.OrderDetail.order_id == order_id).delete(synchronize_session=False)
         order.delete(synchronize_session=False)
         db.commit()
     except SQLAlchemyError as e:
-        error = str(e.__dict__['orig'])
+        error = str(e.__dict__['or`ig'])
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=error)
     return Response(status_code=status.HTTP_204_NO_CONTENT)
 
@@ -178,6 +196,9 @@ def mark_order_completed(db: Session, order_id: int):
 
     if not order:
         raise HTTPException(status_code=404, detail="Order not found")
+
+    if not order.is_paid:
+        raise HTTPException(status_code=400, detail="Order is not paid for")
 
     if order.status == "Completed":
         raise HTTPException(status_code=400, detail="Order is already completed")

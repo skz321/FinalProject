@@ -14,6 +14,7 @@ class Order(Base):
     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
     customer_name = Column(String(100))
     order_date = Column(DATETIME, nullable=False, server_default=str(datetime.now()))
+    order_type = Column(String(20), nullable=False, server_default="")
     description = Column(String(300))
     status = Column(String(50), nullable=False, server_default="Pending") # values will be "Pending" "Completed"
     tracking_number = Column(String(100))
