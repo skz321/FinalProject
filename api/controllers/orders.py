@@ -22,6 +22,8 @@ def create(db: Session, order: order_schema.OrderCreate):
         tracking_number=tracking_number,
         total_price=0.00,
         is_paid=False,
+        card="",
+
     )
 
     total_price = 0
@@ -129,7 +131,7 @@ def delete(db: Session, order_id):
 
 
 
-def pay_for_order(db: Session, order_id: int, amount_paid: float):
+def pay_for_order(db: Session, order_id: int, amount_paid: float, card: str):
     try:
         order = read_one(db, order_id)
         if not order:
@@ -142,6 +144,12 @@ def pay_for_order(db: Session, order_id: int, amount_paid: float):
         if amount_paid < total_price:
             raise HTTPException(status_code=400, detail=f"Insufficient payment. Total is ${total_price:.2f}")
 
+        if len(card) < 16 or not card.isdigit():
+            raise HTTPException(status_code=400, detail="Invalid card number")
+
+        protected_card = f"xxxx-xxxx-xxxx-{card[-4:]}"
+
+        order.card = protected_card
         order.is_paid = True
         order.paid_at = datetime.now(timezone.utc)
 
@@ -179,7 +187,6 @@ def mark_order_completed(db: Session, order_id: int):
     db.refresh(order)
     return {"message": f"Order {order_id} marked as completed"}
 
-# todo: def get_status
 
 def get_status(db: Session, tracking_number: str):
     try:

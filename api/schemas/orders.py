@@ -14,6 +14,8 @@ class OrderBase(BaseModel):
     tracking_number: Optional[str]
     total_price: float
     order_details: List[OrderDetail]
+    is_paid: bool = False
+    card: str = ""
 
 
 class OrderCreate(OrderBase):
@@ -21,6 +23,7 @@ class OrderCreate(OrderBase):
     description: str = ""
     order_details: List[OrderDetailCreate]
     user_id: Optional[int] = None
+    card: str
 
 
 class OrderUpdate(BaseModel):
