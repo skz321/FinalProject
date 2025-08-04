@@ -11,7 +11,8 @@ from . import order_details as order_details_controller
 from ..models import order_details as model_order_details
 from . import user as user_controller
 from sqlalchemy.exc import SQLAlchemyError
-from datetime import datetime, timezone
+from datetime import datetime, timezone, time
+from sqlalchemy import and_
 
 def create(db: Session, order: order_schema.OrderCreate):
 
@@ -218,3 +219,36 @@ def get_status(db: Session, tracking_number: str):
     except SQLAlchemyError as e:
         error = str(e.__dict__['orig'])
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=error)
+
+
+
+def get_orders_by_date(db: Session, date: datetime):
+    try:
+        start_of_day = datetime.combine(date.date(), time.min)
+        end_of_day = datetime.combine(date.date(), time.max)
+
+        orders = db.query(model_orders.Order).filter(
+            and_(
+                model_orders.Order.order_date >= start_of_day,
+                model_orders.Order.order_date <= end_of_day
+            )
+        ).all()
+        if not orders:
+            raise HTTPException(status_code=404, detail="No orders found")
+
+        return orders
+
+    except SQLAlchemyError as e:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
+
+def get_orders_by_time_range(db: Session, start: datetime, end: datetime):
+    try:
+        orders = db.query(model_orders.Order).filter(
+            model_orders.Order.order_date.between(start, end)
+        ).all()
+        if not orders:
+            raise HTTPException(status_code=404, detail="No orders found")
+        return orders
+
+    except SQLAlchemyError as e:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))

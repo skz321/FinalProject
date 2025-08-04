@@ -1,14 +1,25 @@
-from fastapi import APIRouter, Depends, HTTPException
+
+
+from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 from ..controllers import orders as controller
 from ..schemas import orders as schema
 from ..dependencies.database import get_db
+from datetime import datetime
+
 
 router = APIRouter(
     tags=['Orders'],
     prefix="/orders"
 )
 
+
+@router.get("/by-day", response_model=list[schema.Order])
+def get_by_day(date: datetime = Query(...), db: Session = Depends(get_db)):
+    return controller.get_orders_by_date(db, date=date)
+@router.get("/by-time-range", response_model=list[schema.Order])
+def get_by_time_range(start_date: datetime = Query(..., description="YYYY-MM-DD"), end_date: datetime = Query(..., description="YYYY-MM-DD"),  db: Session = Depends(get_db)):
+    return controller.get_orders_by_time_range(db, start=start_date, end=end_date)
 
 @router.post("/", response_model=schema.Order)
 def create(request: schema.OrderCreate, db: Session = Depends(get_db)):
