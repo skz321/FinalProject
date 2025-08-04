@@ -1,11 +1,11 @@
-from fastapi import APIRouter, Depends, FastAPI, status, Response, Body, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from ..controllers import orders as controller
 from ..schemas import orders as schema
-from ..dependencies.database import engine, get_db
+from ..dependencies.database import get_db
 
 router = APIRouter(
-    tags=['Orders-OrderDetails'],
+    tags=['Orders'],
     prefix="/orders"
 )
 
@@ -48,3 +48,4 @@ def complete_order(order_id: int, db: Session = Depends(get_db)):
 @router.get("/status/{tracking_number}", response_model=schema.OrderStatus)
 def get_status(tracking_number: str, db: Session = Depends(get_db)):
     return controller.get_status(db, tracking_number=tracking_number)
+
