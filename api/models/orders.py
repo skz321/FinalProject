@@ -21,6 +21,8 @@ class Order(Base):
     total_price = Column(Numeric(10, 2), nullable=False, server_default=str(decimal.Decimal("0.00")))
     is_paid = Column(Boolean, index=True, nullable=False)
     card = Column(String(19), nullable=True) # Should show xxxx-xxxx-xxxx-last4
+    phone = Column(String(15), nullable=True) 
+    address = Column(String(255), nullable=True)
 
     status = Column(String(50), nullable=False, server_default="Pending") # values will be "Pending", "Shipped", "Delivered", "Cancelled"
 

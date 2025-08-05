@@ -11,6 +11,8 @@ from .order_details import OrderDetail
 class OrderBase(BaseModel):
     user_id: Optional[int] = None
     customer_name: Optional[str] = None
+    phone: Optional[str] = None
+    address: Optional[str] = None
     order_type: Optional[str] = None
     description: Optional[str] = None
     # promotion_code: Optional[str] = None
