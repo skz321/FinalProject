@@ -64,3 +64,26 @@ def get_status(tracking_number: str, db: Session = Depends(get_db)):
     return controller.get_status(db, tracking_number=tracking_number)
 
 
+@router.get("/{item_id}/total")
+def get_order_total(order_id: int, db: Session = Depends(get_db)):
+    return controller.calculate_total_price(db, order_id)
+
+
+# COMMENTED OUT PROMOTION APPLICATION ENDPOINTS
+# @router.post("/{order_id}/apply-promotion")
+# def apply_promotion_code(
+#     order_id: int,
+#     promotion_code: str,
+#     db: Session = Depends(get_db)
+# ):
+#     """Apply a promotion code to an order"""
+#     return controller.validate_and_apply_promotion_code(db, order_id, promotion_code)
+
+
+# @router.delete("/{order_id}/remove-promotion")
+# def remove_promotion_code(
+#     order_id: int,
+#     db: Session = Depends(get_db)
+# ):
+#     """Remove promotion code from an order"""
+#     return controller.remove_promotion_code(db, order_id)
