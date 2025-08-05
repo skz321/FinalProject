@@ -176,7 +176,7 @@ def pay_for_order(db: Session, order_id: int, amount_paid: float, card: str, pro
             validation_result = promotion_controller.validate_promotion_code(db, validation_request)
             
             if validation_result.is_valid:
-                discount_amount = float(validation_result.discount_amount)
+                discount_amount = Decimal(str(validation_result.discount_amount))
                 final_price = original_total - discount_amount
                 applied_promotion = promotion_code
                 
@@ -204,9 +204,9 @@ def pay_for_order(db: Session, order_id: int, amount_paid: float, card: str, pro
         change = amount_paid - final_price
         return {
             "message": "Payment successful",
-            "original_total": round(original_total, 2),
-            "discount_amount": round(discount_amount, 2),
-            "final_price": round(final_price, 2),
+            "original_total": round(float(original_total), 2),
+            "discount_amount": round(float(discount_amount), 2),
+            "final_price": round(float(final_price), 2),
             "amount_paid": round(amount_paid, 2),
             "change": round(change, 2),
             "paid_at": order.paid_at,
