@@ -15,6 +15,9 @@ class Order(Base):
     status = Column(String(50), nullable=False, server_default="Pending") # values will be "Pending", "Shipped", "Delivered", "Cancelled"
     tracking_number = Column(String(64), nullable=True)
     total_price = Column(DECIMAL(10, 2), nullable=True)
+    # promotion_code = Column(String(32), nullable=True)
+    # discount_amount = Column(DECIMAL(10, 2), nullable=True)
+    # final_price = Column(DECIMAL(10, 2), nullable=True)
 
     order_details = relationship("OrderDetail", back_populates="order")
     customer = relationship("User")

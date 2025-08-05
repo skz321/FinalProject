@@ -1,15 +1,19 @@
-from sqlalchemy import Column, ForeignKey, Integer, String, DECIMAL, DATETIME
+from sqlalchemy import Column, Integer, String, DECIMAL, DATETIME
 from sqlalchemy.orm import relationship
-from datetime import datetime
 from ..dependencies.database import Base
+from datetime import datetime
 
 
 class Sandwich(Base):
     __tablename__ = "sandwiches"
 
     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
-    sandwich_name = Column(String(100), unique=True, nullable=True)
-    price = Column(DECIMAL(4, 2), nullable=False, server_default='0.0')
+    name = Column(String(100), nullable=False)
+    description = Column(String(300))
+    price = Column(DECIMAL(10, 2), nullable=False)
+    category = Column(String(50))
+    is_available = Column(Integer, default=1)  # 1 for available, 0 for not available
+    created_at = Column(DATETIME, default=datetime.utcnow)
+    updated_at = Column(DATETIME, default=datetime.utcnow, onupdate=datetime.utcnow)
 
-    recipes = relationship("Recipe", back_populates="sandwich")
     order_details = relationship("OrderDetail", back_populates="sandwich")

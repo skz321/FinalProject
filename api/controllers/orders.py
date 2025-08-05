@@ -5,13 +5,18 @@ from ..models import order_details as model_details
 from ..models import sandwiches as model_sandwich
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy import func
-
+# from decimal import Decimal
+# from . import promotion_codes as promotion_controller
+# from ..schemas.promotion_codes import PromotionCodeValidation
 
 
 def create(db: Session, request):
     new_item = model.Order(
         customer_name=request.customer_name,
-        description=request.description
+        description=request.description,
+        # promotion_code=request.promotion_code,
+        # discount_amount=request.discount_amount,
+        # final_price=request.final_price
     )
 
     try:
@@ -96,4 +101,90 @@ def calculate_total_price(db: Session, item_id: int):
 
     except SQLAlchemyError as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e.__dict__['orig']))
+
+
+# COMMENTED OUT PROMOTION APPLICATION LOGIC
+# def validate_and_apply_promotion_code(db: Session, order_id: int, promotion_code: str):
+#     """Validate and apply a promotion code to an order"""
+#     try:
+#         # Get the order
+#         order = read_one(db, order_id)
+#         if not order:
+#             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Order not found")
+#         
+#         # Calculate current total price
+#         total_info = calculate_total_price(db, order_id)
+#         current_total = Decimal(str(total_info["total_price"]))
+#         
+#         # Validate the promotion code
+#         validation_request = PromotionCodeValidation(
+#             code=promotion_code,
+#             order_amount=current_total
+#         )
+#         
+#         validation_result = promotion_controller.validate_promotion_code(db, validation_request)
+#         
+#         if not validation_result.is_valid:
+#             raise HTTPException(
+#                 status_code=status.HTTP_400_BAD_REQUEST, 
+#                 detail=validation_result.message
+#             )
+#         
+#         # Apply the promotion code
+#         promotion_controller.apply_promotion_code(db, promotion_code)
+#         
+#         # Update the order with discount information
+#         discount_amount = validation_result.discount_amount
+#         final_price = current_total - discount_amount
+#         
+#         update_data = {
+#             "promotion_code": promotion_code,
+#             "discount_amount": float(discount_amount),
+#             "final_price": float(final_price),
+#             "total_price": float(current_total)
+#         }
+#         
+#         # Update the order
+#         item = db.query(model.Order).filter(model.Order.id == order_id)
+#         item.update(update_data, synchronize_session=False)
+#         db.commit()
+#         
+#         return {
+#             "order_id": order_id,
+#             "original_total": float(current_total),
+#             "discount_amount": float(discount_amount),
+#             "final_price": float(final_price),
+#             "promotion_code": promotion_code,
+#             "message": validation_result.message
+#         }
+#         
+#     except SQLAlchemyError as e:
+#         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e.__dict__['orig']))
+
+
+# def remove_promotion_code(db: Session, order_id: int):
+#     """Remove promotion code from an order"""
+#     try:
+#         order = read_one(db, order_id)
+#         if not order:
+#             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Order not found")
+#         
+#         # Reset promotion code fields
+#         update_data = {
+#             "promotion_code": None,
+#             "discount_amount": None,
+#             "final_price": None
+#         }
+#         
+#         item = db.query(model.Order).filter(model.Order.id == order_id)
+#         item.update(update_data, synchronize_session=False)
+#         db.commit()
+#         
+#         return {
+#             "order_id": order_id,
+#             "message": "Promotion code removed successfully"
+#         }
+#         
+#     except SQLAlchemyError as e:
+#         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e.__dict__['orig']))
 
