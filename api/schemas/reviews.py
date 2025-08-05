@@ -1,5 +1,5 @@
-from pydantic import BaseModel, Field
-from typing import Optional
+from pydantic import BaseModel, Field, ConfigDict
+from typing import List
 
 class ReviewBase(BaseModel):
     rating: float = Field(..., ge=1.0, le=5.0)
@@ -12,12 +12,15 @@ class ReviewCreate(ReviewBase):
 
 class Review(ReviewBase):
     id: int
+    model_config = ConfigDict(from_attributes=True)
 
-    class ConfigDict:
-        from_attributes = True
+class ReviewSummary(BaseModel):
+    rating: float
+    review_text: str
 
-class LowRatedMenuItem(BaseModel):
+class LowRatedMenuItemWithReviews(BaseModel):
     id: int
     name: str
     average_rating: float
     review_count: int
+    reviews: List[ReviewSummary]

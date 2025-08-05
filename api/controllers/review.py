@@ -48,4 +48,36 @@ def get_low_rated_menu_items(db: Session, threshold: float = 3.0):
     )
     return results
 
+def get_low_rated_menu_items_with_reviews(db: Session, threshold: float = 3.0):
+    low_rated_items = (
+        db.query(
+            menu_models.MenuItem.id,
+            menu_models.MenuItem.name,
+            func.avg(models.Review.rating).label("average_rating"),
+            func.count(models.Review.id).label("review_count")
+        )
+        .join(models.Review)
+        .group_by(menu_models.MenuItem.id)
+        .having(func.avg(models.Review.rating) < threshold)
+        .order_by(func.avg(models.Review.rating))
+        .all()
+    )
+
+    result = []
+    for item in low_rated_items:
+        reviews = (
+            db.query(models.Review.rating, models.Review.review_text)
+            .filter(models.Review.menu_item_id == item.id)
+            .all()
+        )
+        result.append({
+            "id": item.id,
+            "name": item.name,
+            "average_rating": item.average_rating,
+            "review_count": item.review_count,
+            "reviews": [{"rating": r.rating, "review_text": r.review_text} for r in reviews]
+        })
+
+    return result
+
 
