@@ -13,9 +13,12 @@ router = APIRouter(
     prefix="/orders"
 )
 
+@router.get("/sales-report")
+def get_sales_report(date: datetime = Query(..., description="YYYY-MM-DD"), db: Session = Depends(get_db)):
+    return controller.get_sales_report_for_day(db, date=date)
 
 @router.get("/by-day", response_model=list[schema.Order])
-def get_by_day(date: datetime = Query(...), db: Session = Depends(get_db)):
+def get_by_day(date: datetime = Query(...,  description="YYYY-MM-DD"), db: Session = Depends(get_db)):
     return controller.get_orders_by_date(db, date=date)
 @router.get("/by-time-range", response_model=list[schema.Order])
 def get_by_time_range(start_date: datetime = Query(..., description="YYYY-MM-DD"), end_date: datetime = Query(..., description="YYYY-MM-DD"),  db: Session = Depends(get_db)):
@@ -59,4 +62,5 @@ def complete_order(order_id: int, db: Session = Depends(get_db)):
 @router.get("/status/{tracking_number}", response_model=schema.OrderStatus)
 def get_status(tracking_number: str, db: Session = Depends(get_db)):
     return controller.get_status(db, tracking_number=tracking_number)
+
 

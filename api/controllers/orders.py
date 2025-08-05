@@ -1,18 +1,18 @@
 from sqlalchemy.orm import Session
 from fastapi import HTTPException, status, Response
+from ..models import menu_items as model_menu_items
 from ..models import orders as model_orders
-from ..models import menu_items as model_menu_item
+from ..models import order_details as model_order_details
 from . import ingredients as ingredient_controller
 from . import menu_item_ingredients as link_controller
 from ..models import ingredients as model_ingredients
 from ..schemas import orders as order_schema
 from ..schemas import order_details as order_details_schema
 from . import order_details as order_details_controller
-from ..models import order_details as model_order_details
 from . import user as user_controller
 from sqlalchemy.exc import SQLAlchemyError
 from datetime import datetime, timezone, time
-from sqlalchemy import and_
+from sqlalchemy import and_, func
 
 def create(db: Session, order: order_schema.OrderCreate):
 
@@ -53,7 +53,7 @@ def create(db: Session, order: order_schema.OrderCreate):
         db.flush()
 
         for detail in order.order_details:
-            menu_item = db.query(model_menu_item.MenuItem).filter_by(id=detail.menu_item_id).first()
+            menu_item = db.query(model_menu_items.MenuItem).filter_by(id=detail.menu_item_id).first()
             if not menu_item:
                 raise HTTPException(status_code=404, detail=f"Menu item {detail.menu_item_id} not found")
 
@@ -252,3 +252,73 @@ def get_orders_by_time_range(db: Session, start: datetime, end: datetime):
 
     except SQLAlchemyError as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
+
+
+
+
+def get_sales_report_for_day(db: Session, date: datetime):
+    try:
+        start_of_day = datetime.combine(date.date(), time.min)
+        end_of_day = datetime.combine(date.date(), time.max)
+
+        total_revenue = db.query(func.coalesce(func.sum(model_orders.Order.total_price), 0)).filter(
+            and_(
+                model_orders.Order.order_date >= start_of_day,
+                model_orders.Order.order_date <= end_of_day,
+                model_orders.Order.is_paid == True
+            )
+        ).scalar()
+
+        # query to get menu item amounts for the day
+        base_query = db.query(
+            model_order_details.OrderDetail.menu_item_id,
+            func.sum(model_order_details.OrderDetail.amount).label("total_quantity"),
+            model_menu_items.MenuItem.name
+        ).join(
+            model_orders.Order,
+            model_order_details.OrderDetail.order_id == model_orders.Order.id
+        ).join(
+            model_menu_items.MenuItem,
+            model_order_details.OrderDetail.menu_item_id == model_menu_items.MenuItem.id
+        ).filter(
+            and_(
+                model_orders.Order.order_date >= start_of_day,
+                model_orders.Order.order_date <= end_of_day,
+                model_orders.Order.is_paid == True
+            )
+        ).group_by(
+            model_order_details.OrderDetail.menu_item_id,
+            model_menu_items.MenuItem.name
+        )
+
+        # the most popular item
+        most_popular_item = base_query.order_by(func.sum(model_order_details.OrderDetail.amount).desc()).first()
+        if most_popular_item:
+            most_popular = {
+                "menu_item_id": most_popular_item.menu_item_id,
+                "name": most_popular_item.name,
+                "total_quantity": most_popular_item.total_quantity
+            }
+        else:
+            most_popular = None
+
+        # the least popular item
+        least_popular_item = base_query.order_by(func.sum(model_order_details.OrderDetail.amount).asc()).first()
+        if least_popular_item:
+            least_popular = {
+                "menu_item_id": least_popular_item.menu_item_id,
+                "name": least_popular_item.name,
+                "total_quantity": least_popular_item.total_quantity
+            }
+        else:
+            least_popular = None
+
+        return {
+            "date": date.date(),
+            "total_revenue": total_revenue,
+            "most_popular_menu_item": most_popular,
+            "least_popular_menu_item": least_popular
+        }
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
