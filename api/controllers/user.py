@@ -9,7 +9,8 @@ def create(db: Session, user: schemas.UserCreate):
         email=user.email,
         phone_number=user.phone_number,
         address=user.address,
-        password=user.password
+        password=user.password,
+        order_type_preference=user.order_type_preference,
     )
     db.add(new_user)
     db.commit()

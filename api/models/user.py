@@ -11,6 +11,7 @@ class User(Base):
     password = Column(String(100), nullable=False)
     phone_number = Column(String(20), nullable=True)
     address = Column(String(200), nullable=True)
+    order_type_preference = Column(String(20), nullable=True)
 
     reviews = relationship("Review", back_populates="customer")
 
