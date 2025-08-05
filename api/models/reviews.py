@@ -14,4 +14,3 @@ class Review(Base):
 
     customer = relationship("User", back_populates="reviews")
     menu_item = relationship("MenuItem", back_populates="reviews")
-

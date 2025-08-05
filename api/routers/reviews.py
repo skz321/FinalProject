@@ -27,4 +27,7 @@ def get_review(review_id: int, db: Session = Depends(get_db)):
 def delete_review(review_id: int, db: Session = Depends(get_db)):
     return controller.delete(db, review_id)
 
+@router.get("/low-rated", response_model=List[schemas.LowRatedMenuItem])
+def get_low_rated_items(db: Session = Depends(get_db), threshold: float = 3.0):
+    return controller.get_low_rated_menu_items(db, threshold)
 
