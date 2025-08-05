@@ -24,7 +24,7 @@ def create(db: Session, order: order_schema.OrderCreate):
     order_type = order.order_type
     if not customer_name or customer_name == "string":
         if order.user_id:
-            customer_name = user_controller.read_one(db, order.user_id).name
+            customer_name = user_controller.read_one(db, order.user_id).username
         else:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail="Please order as a user or enter name if guest")
     if not order_type or order_type == "string":
