@@ -5,13 +5,17 @@ from .menu_items import MenuItem
 
 
 class OrderDetailBase(BaseModel):
-    amount: int
-
-
-class OrderDetailCreate(OrderDetailBase):
     menu_item_id: int
     amount: int
     order_id: int
+
+
+class OrderDetailCreate(OrderDetailBase):
+    pass
+
+class CreateOrderDetailV2(BaseModel):
+    menu_item_id: int
+    amount: int
 
 class OrderDetailUpdate(BaseModel):
     order_id: Optional[int] = None

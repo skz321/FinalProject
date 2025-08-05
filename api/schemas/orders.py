@@ -2,7 +2,7 @@ from datetime import datetime
 from typing import Optional
 from pydantic import BaseModel
 from typing import List
-from .order_details import OrderDetailCreate
+from .order_details import CreateOrderDetailV2
 # from decimal import Decimal
 from .order_details import OrderDetail
 
@@ -13,9 +13,6 @@ class OrderBase(BaseModel):
     customer_name: Optional[str] = None
     order_type: Optional[str] = None
     description: Optional[str] = None
-    tracking_number: Optional[str] = None
-    total_price: Optional[float] = None
-    customer_id: Optional[int] = None
     # promotion_code: Optional[str] = None
     # discount_amount: Optional[float] = None
     # final_price: Optional[float] = None
@@ -23,7 +20,7 @@ class OrderBase(BaseModel):
 
 
 class OrderCreate(OrderBase):
-    order_details: List[OrderDetailCreate]
+    order_details: List[CreateOrderDetailV2]
 
 
 class OrderUpdate(BaseModel):
