@@ -19,14 +19,6 @@ def get_all_reviews(db: Session = Depends(get_db)):
 def get_reviews_for_menu_item(menu_item_id: int, db: Session = Depends(get_db)):
     return controller.read_for_menu_item(db, menu_item_id)
 
-@router.get("/{review_id}", response_model=schemas.Review)
-def get_review(review_id: int, db: Session = Depends(get_db)):
-    return controller.read_one(db, review_id)
-
-@router.delete("/{review_id}")
-def delete_review(review_id: int, db: Session = Depends(get_db)):
-    return controller.delete(db, review_id)
-
 @router.get("/low-rated", response_model=List[schemas.LowRatedMenuItem])
 def get_low_rated_items(db: Session = Depends(get_db), threshold: float = 3.0):
     return controller.get_low_rated_menu_items(db, threshold)
@@ -34,3 +26,11 @@ def get_low_rated_items(db: Session = Depends(get_db), threshold: float = 3.0):
 @router.get("/low-rated-details", response_model=List[schemas.LowRatedMenuItemWithReviews])
 def get_low_rated_items_with_reviews(threshold: float = 3.0, db: Session = Depends(get_db)):
     return controller.get_low_rated_menu_items_with_reviews(db, threshold)
+
+@router.get("/{review_id}", response_model=schemas.Review)
+def get_review(review_id: int, db: Session = Depends(get_db)):
+    return controller.read_one(db, review_id)
+
+@router.delete("/{review_id}")
+def delete_review(review_id: int, db: Session = Depends(get_db)):
+    return controller.delete(db, review_id)
