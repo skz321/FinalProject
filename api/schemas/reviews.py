@@ -18,6 +18,12 @@ class ReviewSummary(BaseModel):
     rating: float
     review_text: str
 
+class LowRatedMenuItem(BaseModel):
+    id: int
+    name: str
+    average_rating: float
+    review_count: int
+
 class LowRatedMenuItemWithReviews(BaseModel):
     id: int
     name: str
