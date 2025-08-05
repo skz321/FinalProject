@@ -10,9 +10,12 @@ from ..schemas import orders as order_schema
 from ..schemas import order_details as order_details_schema
 from . import order_details as order_details_controller
 from . import user as user_controller
+from . import promotion_codes as promotion_controller
+from ..schemas import promotion_codes as promotion_schema
 from sqlalchemy.exc import SQLAlchemyError
 from datetime import datetime, timezone, time
 from sqlalchemy import and_, func
+from decimal import Decimal
 
 def create(db: Session, order: order_schema.OrderCreate):
 
@@ -150,7 +153,7 @@ def delete(db: Session, order_id):
 
 
 
-def pay_for_order(db: Session, order_id: int, amount_paid: float, card: str):
+def pay_for_order(db: Session, order_id: int, amount_paid: float, card: str, promotion_code: str = None):
     try:
         order = read_one(db, order_id)
         if not order:
@@ -158,10 +161,33 @@ def pay_for_order(db: Session, order_id: int, amount_paid: float, card: str):
         if order.is_paid:
             raise HTTPException(status_code=400, detail="Order already paid")
 
-        total_price = order.total_price
+        original_total = order.total_price
+        final_price = original_total
+        discount_amount = 0.0
+        applied_promotion = None
 
-        if amount_paid < total_price:
-            raise HTTPException(status_code=400, detail=f"Insufficient payment. Total is ${total_price:.2f}")
+        # Apply promotion code if provided
+        if promotion_code:
+            validation_request = promotion_schema.PromotionCodeValidation(
+                code=promotion_code,
+                order_amount=Decimal(str(original_total))
+            )
+            
+            validation_result = promotion_controller.validate_promotion_code(db, validation_request)
+            
+            if validation_result.is_valid:
+                discount_amount = float(validation_result.discount_amount)
+                final_price = original_total - discount_amount
+                applied_promotion = promotion_code
+                
+                # Apply the promotion code (increment usage count)
+                promotion_controller.apply_promotion_code(db, promotion_code)
+            else:
+                raise HTTPException(status_code=400, detail=validation_result.message)
+
+        # Check if payment amount is sufficient for final price
+        if amount_paid < final_price:
+            raise HTTPException(status_code=400, detail=f"Insufficient payment. Total is ${final_price:.2f}")
 
         if len(card) < 16 or not card.isdigit():
             raise HTTPException(status_code=400, detail="Invalid card number")
@@ -175,13 +201,16 @@ def pay_for_order(db: Session, order_id: int, amount_paid: float, card: str):
         db.commit()
         db.refresh(order)
 
-        change = amount_paid - order.total_price
+        change = amount_paid - final_price
         return {
             "message": "Payment successful",
-            "total_price": round(total_price, 2),
+            "original_total": round(original_total, 2),
+            "discount_amount": round(discount_amount, 2),
+            "final_price": round(final_price, 2),
             "amount_paid": round(amount_paid, 2),
             "change": round(change, 2),
-            "paid_at": order.paid_at
+            "paid_at": order.paid_at,
+            "promotion_code": applied_promotion
         }
 
 
@@ -323,98 +352,5 @@ def get_sales_report_for_day(db: Session, date: datetime):
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
-
-# COMMENTED OUT PROMOTION APPLICATION LOGIC
-# def validate_and_apply_promotion_code(db: Session, order_id: int, promotion_code: str):
-#     """Validate and apply a promotion code to an order"""
-#def create(db: Session, request):
-   # new_item = model.Order(
-        # customer_name=request.customer_name,
-        # description=request.description,
-        # promotion_code=request.promotion_code,
-        # discount_amount=request.discount_amount,
-        # final_price=request.final_price
-    #)
-#     try:
-#         # Get the order
-#         order = read_one(db, order_id)
-#         if not order:
-#             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Order not found")
-#         
-#         # Calculate current total price
-#         total_info = calculate_total_price(db, order_id)
-#         current_total = Decimal(str(total_info["total_price"]))
-#         
-#         # Validate the promotion code
-#         validation_request = PromotionCodeValidation(
-#             code=promotion_code,
-#             order_amount=current_total
-#         )
-#         
-#         validation_result = promotion_controller.validate_promotion_code(db, validation_request)
-#         
-#         if not validation_result.is_valid:
-#             raise HTTPException(
-#                 status_code=status.HTTP_400_BAD_REQUEST, 
-#                 detail=validation_result.message
-#             )
-#         
-#         # Apply the promotion code
-#         promotion_controller.apply_promotion_code(db, promotion_code)
-#         
-#         # Update the order with discount information
-#         discount_amount = validation_result.discount_amount
-#         final_price = current_total - discount_amount
-#         
-#         update_data = {
-#             "promotion_code": promotion_code,
-#             "discount_amount": float(discount_amount),
-#             "final_price": float(final_price),
-#             "total_price": float(current_total)
-#         }
-#         
-#         # Update the order
-#         item = db.query(model.Order).filter(model.Order.id == order_id)
-#         item.update(update_data, synchronize_session=False)
-#         db.commit()
-#         
-#         return {
-#             "order_id": order_id,
-#             "original_total": float(current_total),
-#             "discount_amount": float(discount_amount),
-#             "final_price": float(final_price),
-#             "promotion_code": promotion_code,
-#             "message": validation_result.message
-#         }
-#         
-#     except SQLAlchemyError as e:
-#         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e.__dict__['orig']))
-
-
-# def remove_promotion_code(db: Session, order_id: int):
-#     """Remove promotion code from an order"""
-#     try:
-#         order = read_one(db, order_id)
-#         if not order:
-#             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Order not found")
-#         
-#         # Reset promotion code fields
-#         update_data = {
-#             "promotion_code": None,
-#             "discount_amount": None,
-#             "final_price": None
-#         }
-#         
-#         item = db.query(model.Order).filter(model.Order.id == order_id)
-#         item.update(update_data, synchronize_session=False)
-#         db.commit()
-#         
-#         return {
-#             "order_id": order_id,
-#             "message": "Promotion code removed successfully"
-#         }
-#         
-#     except SQLAlchemyError as e:
-#         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e.__dict__['orig']))
 
 

@@ -17,8 +17,8 @@ class OrderBase(BaseModel):
     total_price: Optional[float] = None
     customer_id: Optional[int] = None
     # promotion_code: Optional[str] = None
-    # discount_amount: Optional[Decimal] = None
-    # final_price: Optional[Decimal] = None
+    # discount_amount: Optional[float] = None
+    # final_price: Optional[float] = None
 
 
 
@@ -33,8 +33,8 @@ class OrderUpdate(BaseModel):
     total_price: Optional[float] = None
     customer_id: Optional[int] = None
     # promotion_code: Optional[str] = None
-    # discount_amount: Optional[Decimal] = None
-    # final_price: Optional[Decimal] = None
+    # discount_amount: Optional[float] = None
+    # final_price: Optional[float] = None
 
 
 class Order(OrderBase):

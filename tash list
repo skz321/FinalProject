@@ -1,0 +1,59 @@
+[33m7c5aae3[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m Merge pull request #27 from skz321/wes
+[33m69a3cf2[m[33m ([m[1;31morigin/wes[m[33m)[m fix: add order_id to order details schema
+[33m4ca6c88[m Merge pull request #26 from skz321/ratings-and-reviews
+[33m5cc4757[m[33m ([m[1;31morigin/ratings-and-reviews[m[33m)[m fix: added LowRatedMenuItem schema to resolve router error
+[33mb609cc7[m Merge pull request #25 from skz321/ratings-and-reviews
+[33mbaee5fe[m feat: completed review functionality with low rating analysis endpoints
+[33mdfdeb76[m Merge pull request #24 from skz321/ratings-and-reviews
+[33m7345399[m feat: add review creation and low-rated dish analysis
+[33mb30c175[m Merge pull request #23 from skz321/wes
+[33ma235655[m feat: add order type preference
+[33mbc52714[m Merge pull request #22 from skz321/wes
+[33mdd1b411[m feat: add sales report to orders
+[33m41cc22d[m Merge pull request #21 from skz321/wes
+[33m31df106[m feat: add order viewing by date
+[33me681a7a[m Merge pull request #20 from skz321/wes
+[33m802803d[m feat: add guest ordering
+[33m4ba00fe[m Merge pull request #18 from skz321/wes
+[33m047270c[m feat: add card payment
+[33m7e2f7e3[m Merge pull request #17 from skz321/wes
+[33m6580d95[m feat: add tracking number status
+[33mb62320f[m feat: add ability to get menu item by category
+[33mf209824[m Merge pull request #16 from skz321/wes
+[33mf57d782[m feat: add ingredients and menu_item_ingredients
+[33m755bfb0[m feat: add basic functionality for orders and order details
+[33mec94789[m Merge pull request #15 from skz321/wes
+[33m003cb17[m refactor(models): merge food_items into menu_items and remove resources and recipes
+[33m585312c[m Merge pull request #14 from skz321/wes
+[33m5b23496[m refactor: remove restaurants feature and update food_items
+[33m4829d13[m Merge pull request #13 from skz321/ratings-and-reviews
+[33m4ff5393[m feat: add controllers and routers for review
+[33m202b87d[m Merge pull request #12 from skz321/ratings-and-reviews
+[33mc9804aa[m Merge branch 'user-and-menuitems' into ratings-and-reviews#
+[33m687e109[m Merge pull request #11 from skz321/user-and-menuitems
+[33mdc320d1[m[33m ([m[1;31morigin/user-and-menuitems[m[33m)[m feat: added user model/schema/controller and routing. fix: resolved issue with password
+[33m41e275d[m Merge pull request #10 from skz321/user-and-menuitems
+[33mafd9f68[m feat: added user and menu_items routers with full CRUD
+[33mf77c285[m Merge pull request #9 from skz321/wes
+[33m43b0618[m feat: add restaurants schema and controller
+[33m5be492f[m Merge pull request #8 from skz321/wes
+[33mb6c58d3[m refactor: rename sandwiches to food_item across project
+[33mafba43d[m Merge pull request #7 from skz321/wes
+[33m06cdd51[m feat: add restaurant relationship to Sandwich model
+[33m92c021c[m Merge pull request #6 from skz321/wes
+[33md025933[m feat: update order model and add payment model
+[33m0c29248[m Merge pull request #5 from skz321/ratings-and-reviews
+[33m046c027[m feat: added ratings and review models and schemas, updated relationships in user and menu item models
+[33m458af38[m Merge pull request #4 from skz321/wes
+[33m69cd277[m Merge branch 'main' into wes
+[33m87966ef[m feat: add restaurant model
+[33m3c0a18e[m Merge pull request #3 from skz321/wes
+[33md4ebbdc[m feat: add resturaunts model
+[33m34b3fc8[m chore: update comment in order model
+[33m589199d[m Merge pull request #2 from skz321/wes
+[33m29b611e[m feat: add status value for order
+[33m99aa521[m feat: add order total feature
+[33m6443284[m Merge pull request #1 from skz321/user-and-menuitems
+[33mb8c7900[m Added User and MenuItem models and schemas
+[33m905875f[m feat: add .env functionality to config
+[33m046f5b9[m chore: initial commit with code skeleton

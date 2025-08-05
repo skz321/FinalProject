@@ -29,11 +29,11 @@ def create(request: schema.OrderCreate, db: Session = Depends(get_db)):
     return controller.create(db=db, order=request)
 
 @router.post("/{order_id}/pay", tags=["Orders"])
-def pay(order_id: int, payment_amount: int, card: str, db: Session = Depends(get_db)):
+def pay(order_id: int, payment_amount: int, card: str, promotion_code: str = None, db: Session = Depends(get_db)):
     # amount_paid = payment.get("amount_paid")
     if payment_amount is None:
         raise HTTPException(status_code=400, detail="Payment amount is required")
-    return controller.pay_for_order(db, order_id, payment_amount, card)
+    return controller.pay_for_order(db, order_id, payment_amount, card, promotion_code)
 
 @router.put("/{order_id}/complete", status_code=200)
 def complete_order(order_id: int, db: Session = Depends(get_db)):
