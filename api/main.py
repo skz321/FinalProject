@@ -2,13 +2,13 @@ import uvicorn
 from fastapi import Depends, FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from .routers import index as indexRoute
+from .routers import order_details  # ✅ Add this line
 from .models import model_loader
 from .dependencies.config import conf
 from .dependencies.database import Base, engine
 
 # Create all tables
 Base.metadata.create_all(bind=engine)
-
 
 app = FastAPI()
 
@@ -25,6 +25,8 @@ app.add_middleware(
 model_loader.index()
 indexRoute.load_routes(app)
 
+# ✅ Register the order_details router
+app.include_router(order_details.router)
 
 if __name__ == "__main__":
     uvicorn.run(app, host=conf.app_host, port=conf.app_port)
