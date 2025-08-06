@@ -13,7 +13,7 @@ class OrderDetailCreate(OrderDetailBase):
 
 
 class CreateOrderDetailV2(OrderDetailBase):
-    pass
+    pass  # ✅ Needed for your /orders POST endpoint (matches older working version)
 
 
 class OrderDetailResponseV2(OrderDetailBase):

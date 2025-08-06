@@ -20,8 +20,8 @@ def create(db: Session, user: schemas.UserCreate):
 def read_all(db: Session):
     return db.query(models.User).all()
 
-def read_one(db: Session, user_id: int):
-    return db.query(models.User).filter(models.User.id == user_id).first()
+def read_one(db: Session, detail_id: int):
+    return db.query(models.OrderDetail).filter(models.OrderDetail.id == detail_id).first()
 
 def update(db: Session, user_id: int, user: schemas.UserCreate):
     db_user = db.query(models.User).filter(models.User.id == user_id)
