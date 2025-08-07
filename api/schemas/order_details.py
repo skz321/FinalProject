@@ -13,7 +13,7 @@ class OrderDetailCreate(OrderDetailBase):
 
 
 class CreateOrderDetailV2(OrderDetailBase):
-    pass  # ✅ Needed for your /orders POST endpoint (matches older working version)
+    pass
 
 
 class OrderDetailResponseV2(OrderDetailBase):
@@ -27,5 +27,8 @@ class OrderDetailResponseV2(OrderDetailBase):
 OrderDetail = OrderDetailResponseV2
 
 
-class OrderDetailUpdate(OrderDetailBase):
-    pass
+class OrderDetailUpdate(BaseModel):
+    menu_item_id: Optional[int] = None
+    quantity: Optional[int] = None
+    amount: Optional[float] = None
+
