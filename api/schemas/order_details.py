@@ -1,32 +1,34 @@
-from datetime import datetime
-from typing import Optional
 from pydantic import BaseModel
-from .menu_items import MenuItem
+from typing import Optional
 
 
 class OrderDetailBase(BaseModel):
     menu_item_id: int
-    amount: int
-    order_id: int
+    quantity: Optional[int] = None
+    amount: Optional[float] = None
 
 
 class OrderDetailCreate(OrderDetailBase):
+    order_id: int
+
+
+class CreateOrderDetailV2(OrderDetailBase):
     pass
 
-class CreateOrderDetailV2(BaseModel):
-    menu_item_id: int
-    amount: int
 
-class OrderDetailUpdate(BaseModel):
-    order_id: Optional[int] = None
-    menu_item_id: Optional[int] = None
-    amount: Optional[int] = None
-
-
-class OrderDetail(OrderDetailBase):
+class OrderDetailResponseV2(OrderDetailBase):
     id: int
     order_id: int
-    menu_item: MenuItem = None
 
-    class ConfigDict:
+    class Config:
         from_attributes = True
+
+
+OrderDetail = OrderDetailResponseV2
+
+
+class OrderDetailUpdate(BaseModel):
+    menu_item_id: Optional[int] = None
+    quantity: Optional[int] = None
+    amount: Optional[float] = None
+
