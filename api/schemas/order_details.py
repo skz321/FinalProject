@@ -4,7 +4,7 @@ from typing import Optional
 
 class OrderDetailBase(BaseModel):
     menu_item_id: int
-    quantity: int
+    quantity: Optional[int] = None
     amount: Optional[float] = None
 
 

@@ -21,6 +21,8 @@ def create(db: Session, order: order_schema.OrderCreate):
 
     tracking_number = "TRACK-" + datetime.now(timezone.utc).strftime("%Y%m%d%H%M%S")
     customer_name = order.customer_name
+    phone = order.phone
+    address = order.address
     order_type = order.order_type
     if not customer_name or customer_name == "string":
         if order.user_id:
@@ -30,14 +32,30 @@ def create(db: Session, order: order_schema.OrderCreate):
     if not order_type or order_type == "string":
         if order.user_id:
             # customer_name = user_controller.read_one(db, order.user_id).name
-            order_type = user_controller.read_one(db, order.user_id).order_type_preference # todo: implement in users
+            order_type = user_controller.read_one(db, order.user_id).order_type_preference 
         else:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
                                 detail="Please order as a user or manually enter order type if guest")
+    
+    if not phone or phone == "string":
+        if order.user_id:
+            phone = user_controller.read_one(db, order.user_id).phone_number
+        else:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                                detail="Please order as a user or manually enter phone number if guest")
+    
+    if not address or address == "string":
+        if order.user_id:
+            address = user_controller.read_one(db, order.user_id).address
+        else:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                                detail="Please order as a user or manually enter address if guest")
 
     new_order = model_orders.Order(
         customer_name=customer_name,
-        order_type = order_type,
+        order_type=order_type,
+        phone=phone,
+        address=address,
         description=order.description,
         tracking_number=tracking_number,
         total_price=0.00,
@@ -47,6 +65,8 @@ def create(db: Session, order: order_schema.OrderCreate):
 
     if order.user_id:
         new_order.user_id = order.user_id
+    
+
 
     total_price = 0
     ingredient_usage = {}
@@ -176,7 +196,7 @@ def pay_for_order(db: Session, order_id: int, amount_paid: float, card: str, pro
             validation_result = promotion_controller.validate_promotion_code(db, validation_request)
             
             if validation_result.is_valid:
-                discount_amount = float(validation_result.discount_amount)
+                discount_amount = Decimal(str(validation_result.discount_amount))
                 final_price = original_total - discount_amount
                 applied_promotion = promotion_code
                 
@@ -204,9 +224,9 @@ def pay_for_order(db: Session, order_id: int, amount_paid: float, card: str, pro
         change = amount_paid - final_price
         return {
             "message": "Payment successful",
-            "original_total": round(original_total, 2),
-            "discount_amount": round(discount_amount, 2),
-            "final_price": round(final_price, 2),
+            "original_total": round(float(original_total), 2),
+            "discount_amount": round(float(discount_amount), 2),
+            "final_price": round(float(final_price), 2),
             "amount_paid": round(amount_paid, 2),
             "change": round(change, 2),
             "paid_at": order.paid_at,

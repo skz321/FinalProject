@@ -3,7 +3,7 @@ from typing import Optional, List
 from pydantic import BaseModel
 from .order_details import CreateOrderDetailV2, OrderDetail
 
-# Shared Base Schema
+
 class OrderBase(BaseModel):
     user_id: Optional[int] = None
     customer_name: Optional[str] = None
@@ -21,17 +21,14 @@ class OrderBase(BaseModel):
         from_attributes = True
 
 
-# CREATE
 class OrderCreate(OrderBase):
     order_details: List[CreateOrderDetailV2]
 
 
-# UPDATE
 class OrderUpdate(OrderBase):
     order_details: Optional[List[CreateOrderDetailV2]]
 
 
-# RESPONSE
 class Order(OrderBase):
     id: int
     order_date: Optional[datetime] = None
@@ -41,6 +38,5 @@ class Order(OrderBase):
         from_attributes = True
 
 
-# STATUS ONLY
 class OrderStatus(BaseModel):
     status: str
