@@ -12,7 +12,7 @@ router = APIRouter(
 )
 
 
-@router.post("/", response_model=menu_item_ingredient_schema.MenuItemIngredientCreate, status_code=status.HTTP_201_CREATED)
+@router.post("/", response_model=menu_item_ingredient_schema.MenuItemIngredient, status_code=status.HTTP_201_CREATED)
 def create_menu_item_ingredient(item_ingredient: menu_item_ingredient_schema.MenuItemIngredientCreate, db: Session = Depends(get_db)):
     return menu_item_ingredient_controller.create(db, item_ingredient)
 

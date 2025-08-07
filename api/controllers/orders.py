@@ -221,7 +221,7 @@ def pay_for_order(db: Session, order_id: int, amount_paid: float, card: str, pro
         db.commit()
         db.refresh(order)
 
-        change = amount_paid - final_price
+        change = Decimal(str(amount_paid)) - final_price
         return {
             "message": "Payment successful",
             "original_total": round(float(original_total), 2),

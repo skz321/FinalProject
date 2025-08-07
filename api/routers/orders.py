@@ -29,8 +29,7 @@ def create(request: schema.OrderCreate, db: Session = Depends(get_db)):
     return controller.create(db=db, order=request)
 
 @router.post("/{order_id}/pay", tags=["Orders"])
-def pay(order_id: int, payment_amount: int, card: str, promotion_code: str = None, db: Session = Depends(get_db)):
-    # amount_paid = payment.get("amount_paid")
+def pay(order_id: int, payment_amount: float, card: str, promotion_code: str = None, db: Session = Depends(get_db)):
     if payment_amount is None:
         raise HTTPException(status_code=400, detail="Payment amount is required")
     return controller.pay_for_order(db, order_id, payment_amount, card, promotion_code)
@@ -64,9 +63,6 @@ def get_status(tracking_number: str, db: Session = Depends(get_db)):
     return controller.get_status(db, tracking_number=tracking_number)
 
 
-@router.get("/{item_id}/total")
-def get_order_total(order_id: int, db: Session = Depends(get_db)):
-    return controller.calculate_total_price(db, order_id)
 
 
 # COMMENTED OUT PROMOTION APPLICATION ENDPOINTS

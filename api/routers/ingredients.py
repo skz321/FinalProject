@@ -12,17 +12,17 @@ router = APIRouter(
 )
 
 
-@router.post("/", response_model=ingredients_schema.IngredientCreate, status_code=status.HTTP_201_CREATED)
+@router.post("/", response_model=ingredients_schema.Ingredient, status_code=status.HTTP_201_CREATED)
 def create_ingredient(ingredient: ingredients_schema.IngredientCreate, db: Session = Depends(get_db)):
     return ingredient_controller.create(db, ingredient)
 
 
-@router.get("/", response_model=List[ingredients_schema.IngredientCreate])
+@router.get("/", response_model=List[ingredients_schema.Ingredient])
 def list_ingredients(db: Session = Depends(get_db)):
     return ingredient_controller.read_all(db)
 
 
-@router.get("/{ingredient_id}", response_model=ingredients_schema.IngredientCreate)
+@router.get("/{ingredient_id}", response_model=ingredients_schema.Ingredient)
 def get_ingredient(ingredient_id: int, db: Session = Depends(get_db)):
     ingredient = ingredient_controller.read_one(db, ingredient_id)
     if not ingredient:
@@ -30,7 +30,7 @@ def get_ingredient(ingredient_id: int, db: Session = Depends(get_db)):
     return ingredient
 
 
-@router.put("/{ingredient_id}", response_model=ingredients_schema.IngredientCreate)
+@router.put("/{ingredient_id}", response_model=ingredients_schema.Ingredient)
 def update_ingredient(ingredient_id: int, ingredient_data: ingredients_schema.IngredientCreate, db: Session = Depends(get_db)):
     return ingredient_controller.update(db, ingredient_id, ingredient_data)
 
