@@ -28,12 +28,10 @@ class OrderCreate(OrderBase):
 class OrderUpdate(BaseModel):
     customer_name: Optional[str] = None
     description: Optional[str] = None
-    tracking_number: Optional[str] = None
-    total_price: Optional[float] = None
-    customer_id: Optional[int] = None
-    # promotion_code: Optional[str] = None
-    # discount_amount: Optional[float] = None
-    # final_price: Optional[float] = None
+    phone: Optional[str] = None
+    address: Optional[str] = None
+    order_type: Optional[str] = None    
+ 
 
 
 class Order(OrderBase):
